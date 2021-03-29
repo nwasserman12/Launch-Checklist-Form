@@ -11,25 +11,60 @@
 </ol>
 <img src="${}">
 */
+window.addEventListener("load", function() {
 
-window.addEventListener("load", function(){
-   let form = document.querySelector("form"); 
-   form.addEventListener("submit", function(event){
-      let pilotInput = document.querySelector("input[name=pilotName]");
-      let copilotInput = document.querySelector("input[name=copilotName]");
-      let fuelInput = document.querySelector("input[name=fuelLevel]");
-      let cargoInput = document.querySelector("input[name=cargoMass]");
-      if (pilotInput.value === '' || copilotInput.value === '' || fuelInput.value === '' || cargoInput.value === ''){
-         alert("All fields are required!"); 
-         event.preventDefault();
+   const launchForm = document.getElementById("launchForm"); 
+
+   launchForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      const pilot = launchForm.querySelector("input[name='pilotName']").value; 
+      const copilot = launchForm.querySelector("input[name='copilotName']").value;
+      const fuel = launchForm.querySelector("input[name='fuelLevel']").value;
+      const cargo = launchForm.querySelector("input[name='cargoMass']").value; 
+
+      if (!pilot || !copilot || !fuel || !cargo) {
+         alert("invalid input"); 
       }
-      if (isNaN(pilotInput.value) === false || isNaN(copilotInput.value) === false){
-         alert("Please enter a valid name!");
-         event.preventDefault(); 
+
+      document.getElementById("pilotStatus").textContent = `Pilot ${pilot} is ready`; 
+      document.getElementById("copilotStatus").textContent = `Copilot ${copilot} is ready`; 
+
+      if (Number(fuel) < 10000){
+         document.getElementById("faultyItems").style.visibility = "visible"; 
+         document.getElementById("launchStatus").textContent = "Shuttle not ready for launch"; 
+         document.getElementById("launchStatus").style.color = "red"; 
+         document.getElementById("fuelStatus").textContent = "Not enough fuel for the Journey"; 
+      } else if (Number(cargo) > 10000){
+         document.getElementById("faultyItems").style.visibility = "visible";  
+         document.getElementById("launchStatus").textContent = "Shuttle not ready for launch"; 
+         document.getElementById("launchStatus").style.color = "red"; 
+         document.getElementById("cargoStatus").textContent = "Too much mass for the shuttle to take off"; 
+      } else {
+         document.getElementById("faultyItems").style.visibility = "visible"; 
+         document.getElementById("launchStatus").textContent = "Shuttle is ready for launch";
+         document.getElementById("launchStatus").style.color = "green"; 
       }
-      if (isNaN(fuelInput.value) === true || isNaN(cargoInput.value) === true){
-         alert("Please enter a numerical value!");
-         event.preventDefault(); 
-      }
+
+      let planetChoice; 
+
+      fetch("https://handlers.education.launchcode.org/static/planets.json").then(function(response) {
+         response.json().then(function(json) {
+            console.log(json);
+
+            let randomPlanet = Math.floor(Math.random()*6); 
+            planetChoice = json[randomPlanet]; 
+            missionTarget.innerHTML =` 
+            <h2>Mission Destination</h2>
+            <ol>
+               <li>Name: ${planetChoice.name}</li>
+               <li>Diameter: ${planetChoice.diameter}</li>
+               <li>Star: ${planetChoice.star}</li>
+               <li>Distance from Earth: ${planetChoice.distance}</li>
+               <li>Number of Moons: ${planetChoice.moons}</li>
+            </ol>
+            <img src="${planetChoice.image}"></img>
+         `});
+      });
    });
 });
+
